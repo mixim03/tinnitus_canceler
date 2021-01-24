@@ -29,6 +29,6 @@ private:
     // Your private member variables go here...
     //AudioAppDemo audioAppDemo;
     juce::OwnedArray<AudioAppDemo> audioAppDemo;
-
+ 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

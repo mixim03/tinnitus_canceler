@@ -8,19 +8,42 @@ class AudioAppDemo : public juce::AudioAppComponent
 {
 public:
     enum {
-        NUM_OF_WAVE = 4,
+        NUM_OF_WAVE = 8,
+        NUM_OF_WAVE_W = 2,
+        NUM_OF_WAVE_H = NUM_OF_WAVE / NUM_OF_WAVE_W
     };
 
+    enum {
+        CH_L,
+        CH_R,
+        NUM_OF_CHANNEL,
+    };
+    int mCH;
+
+    static int getCH(int theIdx) {
+        if (theIdx < (NUM_OF_WAVE_H)) {
+            return CH_L;
+        }
+        return CH_R;
+    }
     //==============================================================================
-    AudioAppDemo(int theIdx)
+    AudioAppDemo(int theCH, int theIdx)
 #ifdef JUCE_DEMO_RUNNER
         : AudioAppComponent(getSharedAudioDeviceManager(0, 2))
 #endif
     {
-        setAudioChannels(0, 2);
+        setAudioChannels(0, NUM_OF_CHANNEL);
+        mCH = theCH;
+
         //setSize(800, 600/4);
-        int aH = 600 / NUM_OF_WAVE;
-        setBounds(0, aH * theIdx, 800, 600 / NUM_OF_WAVE);
+        int aH = 600 / NUM_OF_WAVE_H;
+
+        if (getCH(theIdx)==CH_L) {
+            setBounds(0,   aH * theIdx, 400, 600 / NUM_OF_WAVE_H);
+        }
+        else {
+            setBounds(400, aH * (theIdx-4), 400, 600 / NUM_OF_WAVE_H);
+        }
     }
 
     ~AudioAppDemo() override
@@ -44,11 +67,11 @@ public:
         bufferToFill.clearActiveBufferRegion();
         auto originalPhase = phase;
 
-        for (auto chan = 0; chan < bufferToFill.buffer->getNumChannels(); ++chan)
-        {
+        //for (auto chan = 0; chan < bufferToFill.buffer->getNumChannels(); ++chan)
+        //{
             phase = originalPhase;
 
-            auto* channelData = bufferToFill.buffer->getWritePointer(chan, bufferToFill.startSample);
+            auto* channelData = bufferToFill.buffer->getWritePointer(mCH, bufferToFill.startSample);
 
             for (auto i = 0; i < bufferToFill.numSamples; ++i)
             {
@@ -57,7 +80,7 @@ public:
                 // increment the phase step for the next sample
                 phase = std::fmod(phase + phaseDelta, juce::MathConstants<float>::twoPi);
             }
-        }
+        //}
     }
 
     void releaseResources() override
@@ -70,6 +93,8 @@ public:
     //==============================================================================
     void paint(juce::Graphics& g) override
     {
+        auto aArea = getLocalBounds();
+
         // (Our component is opaque, so we must completely fill the background with a solid colour)
         g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
 
@@ -96,6 +121,11 @@ public:
 
         g.setColour(getLookAndFeel().findColour(juce::Slider::thumbColourId));
         g.strokePath(wavePath, juce::PathStrokeType(2.0f));
+
+
+        g.setColour(juce::Colours::white);
+        //g.fillAll(juce::Colours::black);
+        g.drawRect(aArea);
     }
 
     // Mouse handling..

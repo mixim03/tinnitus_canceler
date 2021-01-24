@@ -20,8 +20,8 @@ MainComponent::MainComponent()
         setAudioChannels (2, 2);
     }
 
-    for (int i = 0; i < 4; i++) {
-        audioAppDemo.add(new AudioAppDemo(i));
+    for (int i = 0; i < AudioAppDemo::NUM_OF_WAVE; i++) {
+        audioAppDemo.add(new AudioAppDemo(AudioAppDemo::getCH(i),i));
         addAndMakeVisible(audioAppDemo[i]);
     }
     //resized();
