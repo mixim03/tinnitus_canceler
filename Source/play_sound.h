@@ -7,15 +7,20 @@
 class AudioAppDemo : public juce::AudioAppComponent
 {
 public:
+    enum {
+        NUM_OF_WAVE = 4,
+    };
+
     //==============================================================================
-    AudioAppDemo()
+    AudioAppDemo(int theIdx)
 #ifdef JUCE_DEMO_RUNNER
         : AudioAppComponent(getSharedAudioDeviceManager(0, 2))
 #endif
     {
         setAudioChannels(0, 2);
-
-        setSize(800, 600);
+        //setSize(800, 600/4);
+        int aH = 600 / NUM_OF_WAVE;
+        setBounds(0, aH * theIdx, 800, 600 / NUM_OF_WAVE);
     }
 
     ~AudioAppDemo() override

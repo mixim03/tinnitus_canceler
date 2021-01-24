@@ -20,7 +20,11 @@ MainComponent::MainComponent()
         setAudioChannels (2, 2);
     }
 
-    addAndMakeVisible(audioAppDemo);
+    for (int i = 0; i < 4; i++) {
+        audioAppDemo.add(new AudioAppDemo(i));
+        addAndMakeVisible(audioAppDemo[i]);
+    }
+    //resized();
 }
 
 MainComponent::~MainComponent()
@@ -74,6 +78,8 @@ void MainComponent::resized()
     // This is called when the MainContentComponent is resized.
     // If you add any child components, this is where you should
     // update their positions.
-    auto aArea = getLocalBounds();
-    audioAppDemo.setBounds(aArea);
+
+    //auto aArea = getLocalBounds();
+    //audioAppDemo.setBounds(aArea);
+    //audioAppDemo[0]->setBounds(aArea);
 }
