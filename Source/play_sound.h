@@ -6,6 +6,15 @@
 //==============================================================================
 class AudioAppDemo : public juce::AudioAppComponent
 {
+private:
+    int mCH;
+
+    juce::OwnedArray<juce::Slider> slider;
+
+    int mVal[3];
+
+    juce::ToggleButton button;
+
 public:
     enum {
         NUM_OF_WAVE = 8,
@@ -18,7 +27,13 @@ public:
         CH_R,
         NUM_OF_CHANNEL,
     };
-    int mCH;
+    
+    enum {
+        SLIDER_FREQ,
+        SLIDER_LEVEL,
+        SLIDER_PHASE,
+        NUM_OF_SLIDER
+    };
 
     static int getCH(int theIdx) {
         if (theIdx < (NUM_OF_WAVE_H)) {
@@ -32,6 +47,30 @@ public:
         : AudioAppComponent(getSharedAudioDeviceManager(0, 2))
 #endif
     {
+        addAndMakeVisible(button);
+//        button.setColour(juce::TextButton::textColourOffId, juce::Colours::darkgrey);
+//        button.setColour(juce::TextButton::textColourOnId, juce::Colours::red);
+        button.setButtonText("Sw");
+
+        //Slider
+        for (int i = 0; i < NUM_OF_SLIDER; i++) {
+            slider.add(new juce::Slider("test"));
+            addAndMakeVisible(slider[i]);
+        }
+
+        slider[SLIDER_FREQ]->setRange(0, 20000, 0.1);
+        slider[SLIDER_LEVEL]->setRange(0, 0.1, 0.001);
+        slider[SLIDER_PHASE]->setRange(0, 360, 0.1);
+
+        slider[SLIDER_FREQ]->onValueChange = [this] { 
+            mFrequency = slider[SLIDER_FREQ]->getValue(); 
+            mPhaseDelta = (float)(juce::MathConstants<double>::twoPi * mFrequency / sampleRate);
+        };
+
+        slider[SLIDER_LEVEL]->onValueChange = [this] { mAmplitude = slider[SLIDER_LEVEL]->getValue(); };
+        slider[SLIDER_PHASE]->onValueChange = [this] { mPhaseOfst = slider[SLIDER_PHASE]->getValue(); };
+
+        //Audio
         setAudioChannels(0, NUM_OF_CHANNEL);
         mCH = theCH;
 
@@ -44,6 +83,7 @@ public:
         else {
             setBounds(400, aH * (theIdx-4), 400, 600 / NUM_OF_WAVE_H);
         }
+
     }
 
     ~AudioAppDemo() override
@@ -64,21 +104,26 @@ public:
      */
     void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override
     {
+        int aSw = button.getToggleStateValue().getValue();      
+        if (aSw == 0) {
+            return;
+        }
+
         bufferToFill.clearActiveBufferRegion();
-        auto originalPhase = phase;
+        auto originalPhase = mPhase;
 
         //for (auto chan = 0; chan < bufferToFill.buffer->getNumChannels(); ++chan)
         //{
-            phase = originalPhase;
+            mPhase = originalPhase;
 
             auto* channelData = bufferToFill.buffer->getWritePointer(mCH, bufferToFill.startSample);
 
             for (auto i = 0; i < bufferToFill.numSamples; ++i)
             {
-                channelData[i] = amplitude * std::sin(phase);
+                channelData[i] = mAmplitude * std::sin(mPhaseOfst + mPhase);
 
                 // increment the phase step for the next sample
-                phase = std::fmod(phase + phaseDelta, juce::MathConstants<float>::twoPi);
+                mPhase = std::fmod(mPhase + mPhaseDelta, juce::MathConstants<float>::twoPi);
             }
         //}
     }
@@ -93,13 +138,13 @@ public:
     //==============================================================================
     void paint(juce::Graphics& g) override
     {
-        auto aArea = getLocalBounds();
+#if 0
 
         // (Our component is opaque, so we must completely fill the background with a solid colour)
         g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
 
         auto centreY = (float)getHeight() / 2.0f;
-        auto radius = amplitude * 200.0f;
+        auto radius = mAmplitude * 200.0f;
 
         if (radius >= 0.0f)
         {
@@ -116,18 +161,19 @@ public:
         wavePath.startNewSubPath(0, centreY);
 
         for (auto x = 1.0f; x < (float)getWidth(); ++x)
-            wavePath.lineTo(x, centreY + amplitude * (float)getHeight() * 2.0f
-                * std::sin(x * frequency * 0.0001f));
+            wavePath.lineTo(x, centreY + mAmplitude * (float)getHeight() * 2.0f
+                * std::sin(x * mFrequency * 0.0001f));
 
         g.setColour(getLookAndFeel().findColour(juce::Slider::thumbColourId));
         g.strokePath(wavePath, juce::PathStrokeType(2.0f));
-
-
+#endif
+        auto aArea = getLocalBounds();
         g.setColour(juce::Colours::white);
         //g.fillAll(juce::Colours::black);
         g.drawRect(aArea);
     }
 
+#if 0
     // Mouse handling..
     void mouseDown(const juce::MouseEvent& e) override
     {
@@ -151,21 +197,37 @@ public:
         amplitude = 0.0f;
         repaint();
     }
+#endif
 
     void resized() override
     {
         // This is called when the component is resized.
         // If you add any child components, this is where you should
         // update their positions.
+   
+        auto aAreaa = getLocalBounds();
+        button.setBounds(5, aAreaa.getHeight()/2-20, 40, 40);
+
+        auto aAreaaReduced = aAreaa.reduced(50, 10);
+        int  aItemH = aAreaaReduced.getHeight() / 3;
+
+
+       juce::Array<juce::Rectangle<int>> aSliderArea;
+
+       for (int i = 0; i < 3; i++) {
+           aSliderArea.add(aAreaaReduced.removeFromTop(aItemH));
+           slider[i]->setBounds(aSliderArea[i]);
+       }
     }
 
 
 private:
     //==============================================================================
-    float phase = 0.0f;
-    float phaseDelta = 0.0f;
-    float frequency = 5000.0f;
-    float amplitude = 0.2f;
+    float mPhase      = 0.0f;
+    float mPhaseDelta = 0.0f;
+    float mFrequency  = 5000.0f;
+    float mAmplitude  = 0.0f;
+    float mPhaseOfst  = 0.0f;
 
     double sampleRate = 0.0;
     int expectedSamplesPerBlock = 0;
