@@ -1,6 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "play_sound.h"
 
 //==============================================================================
 /*
@@ -26,7 +27,7 @@ public:
 private:
     //==============================================================================
     // Your private member variables go here...
-
+    AudioAppDemo audioAppDemo;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

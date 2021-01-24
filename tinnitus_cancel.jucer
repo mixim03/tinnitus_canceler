@@ -4,10 +4,12 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="MC8uy9" name="tinnitus_cancel">
     <GROUP id="{DF576ECE-83F6-AF0D-2F50-C12D4E3D90A7}" name="Source">
+      <FILE id="wgnrsv" name="play_sound.h" compile="0" resource="0" file="Source/play_sound.h"/>
       <FILE id="T6ShJy" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
-      <FILE id="fspSbR" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="xPCWMj" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
+      <FILE id="fspSbR" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+      <FILE id="NjGGmK" name="play_sound.cpp" compile="1" resource="0" file="Source/play_sound.cpp"/>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>

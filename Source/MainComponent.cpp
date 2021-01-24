@@ -19,6 +19,8 @@ MainComponent::MainComponent()
         // Specify the number of input and output channels that we want to open
         setAudioChannels (2, 2);
     }
+
+    addAndMakeVisible(audioAppDemo);
 }
 
 MainComponent::~MainComponent()
@@ -72,4 +74,6 @@ void MainComponent::resized()
     // This is called when the MainContentComponent is resized.
     // If you add any child components, this is where you should
     // update their positions.
+    auto aArea = getLocalBounds();
+    audioAppDemo.setBounds(aArea);
 }
